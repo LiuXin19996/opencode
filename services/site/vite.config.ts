@@ -3,6 +3,7 @@ import { solidStart } from "@solidjs/start/config"
 import { nitro } from "nitro/vite"
 import { fromPathname } from "./src/lib/language"
 import variants from "./src/component/site/css-variants.json"
+import { docs } from "./src/docs/vite"
 
 // Nitro's dev server drops any page the app renders with a 404 status and falls through to a bare
 // "Cannot GET". In development only, serve the not-found page's preview (/dev/404, which follows
@@ -117,6 +118,7 @@ export default defineConfig({
     }),
     notFoundInDev(),
     cssVariantsForProduction(),
+    docs(),
   ],
   server: {
     allowedHosts: true,
