@@ -13,6 +13,7 @@ import {
   type FileIconSymbolState,
 } from "./file-icon-machine"
 import { chooseIconName } from "./file-icons/choose-icon-name"
+import { fileIconFallbacks, fileIconSources } from "./file-icons/sources"
 import type { IconName } from "./file-icons/types"
 
 export type FileIconProps = JSX.GSVGAttributes<SVGSVGElement> & {
@@ -102,19 +103,7 @@ function runSymbolEffect(name: IconName, entry: SymbolEntry, effect: FileIconSym
   if (effect.type === "cancel-timeout") return clearTimeout(entry.timer)
 
   // The fallbacks are bundled, so they never load lazily.
-  sources ??= Object.fromEntries(
-    Object.entries(
-      import.meta.glob<string>(
-        [
-          "../assets/icons/file-types/*.svg",
-          "!../assets/icons/file-types/document.svg",
-          "!../assets/icons/file-types/folder.svg",
-          "!../assets/icons/file-types/folder-open.svg",
-        ],
-        { query: "?raw", import: "default" },
-      ),
-    ).map(([path, load]) => [toIconName(path), load]),
-  )
+  sources ??= Object.fromEntries(Object.entries(fileIconSources).map(([path, load]) => [toIconName(path), load]))
   const load = sources[name]
 
   if (!load) return dispatchSymbol(name, { type: "load.failed" })
@@ -171,16 +160,7 @@ function sprite() {
   svg.style.overflow = "hidden"
   document.body.insertBefore(svg, document.body.firstChild)
   // The fallbacks ship with the component, so an icon whose own symbol fails to load always has one to show.
-  Object.entries(
-    import.meta.glob<string>(
-      [
-        "../assets/icons/file-types/document.svg",
-        "../assets/icons/file-types/folder.svg",
-        "../assets/icons/file-types/folder-open.svg",
-      ],
-      { query: "?raw", import: "default", eager: true },
-    ),
-  ).forEach(([path, text]) => insertSymbol(toIconName(path), text))
+  Object.entries(fileIconFallbacks).forEach(([path, text]) => insertSymbol(toIconName(path), text))
 
   return svg
 }
